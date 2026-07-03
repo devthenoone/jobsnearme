@@ -2,7 +2,7 @@ import "server-only";
 import bcrypt from "bcryptjs";
 import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
-import { db, type UserRow } from "./db";
+import { one, type UserRow } from "./db";
 
 const COOKIE = "session";
 const secret = new TextEncoder().encode(
@@ -52,9 +52,10 @@ export async function getCurrentUser(): Promise<SessionUser | null> {
     const id = Number(payload.sub);
     if (!id) return null;
     // Confirm the user still exists.
-    const row = db
-      .prepare("SELECT id, email, name FROM users WHERE id = ?")
-      .get(id) as Pick<UserRow, "id" | "email" | "name"> | undefined;
+    const row = await one<Pick<UserRow, "id" | "email" | "name">>(
+      "SELECT id, email, name FROM users WHERE id = ?",
+      [id]
+    );
     return row ?? null;
   } catch {
     return null;

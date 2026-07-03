@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { getCurrentUser } from "@/lib/auth";
 import { listByAuthor } from "@/lib/posts";
-import { db } from "@/lib/db";
+import { one } from "@/lib/db";
 import DeletePostButton from "@/components/DeletePostButton";
 
 export const dynamic = "force-dynamic";
@@ -10,18 +10,16 @@ export const metadata: Metadata = { title: "Dashboard" };
 
 export default async function Dashboard() {
   const user = (await getCurrentUser())!; // layout guarantees auth
-  const posts = listByAuthor(user.id);
+  const posts = await listByAuthor(user.id);
 
   const published = posts.filter((p) => p.published).length;
   const drafts = posts.length - published;
-  const linkCount = (
-    db
-      .prepare(
-        `SELECT COUNT(*) AS c FROM post_links
-          WHERE post_id IN (SELECT id FROM posts WHERE author_id = ?)`
-      )
-      .get(user.id) as { c: number }
-  ).c;
+  const linkRow = await one<{ c: number }>(
+    `SELECT COUNT(*) AS c FROM post_links
+      WHERE post_id IN (SELECT id FROM posts WHERE author_id = ?)`,
+    [user.id]
+  );
+  const linkCount = Number(linkRow?.c ?? 0);
 
   return (
     <div>

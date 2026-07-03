@@ -3,9 +3,9 @@ import { listPublished } from "@/lib/posts";
 
 export const dynamic = "force-dynamic";
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
-  const posts = listPublished().map((p) => ({
+  const posts = (await listPublished()).map((p) => ({
     url: `${base}/blog/${p.slug}`,
     lastModified: new Date(p.updated_at),
     changeFrequency: "weekly" as const,

@@ -3,8 +3,8 @@ import { listPublished, tagList } from "@/lib/posts";
 
 export const dynamic = "force-dynamic";
 
-export default function Home() {
-  const posts = listPublished();
+export default async function Home() {
+  const posts = await listPublished();
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-10">

@@ -8,8 +8,8 @@ export const metadata: Metadata = {
   description: "Guides and tips on finding jobs near you — local, part-time, warehouse, and remote roles.",
 };
 
-export default function BlogsPage() {
-  const posts = listPublished();
+export default async function BlogsPage() {
+  const posts = await listPublished();
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-10">

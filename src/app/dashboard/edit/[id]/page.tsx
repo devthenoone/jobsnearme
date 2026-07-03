@@ -14,7 +14,7 @@ export default async function EditPost({
   if (!user) redirect("/login");
 
   const { id } = await params;
-  const post = getById(Number(id));
+  const post = await getById(Number(id));
   if (!post) notFound();
   if (post.author_id !== user.id) redirect("/dashboard");
 

@@ -5,8 +5,8 @@ import SettingsForm from "@/components/SettingsForm";
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Settings" };
 
-export default function SettingsPage() {
-  const settings = getSettings();
+export default async function SettingsPage() {
+  const settings = await getSettings();
   return (
     <div>
       <div className="mb-6">

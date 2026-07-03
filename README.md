@@ -36,10 +36,12 @@ Set a strong `AUTH_SECRET` in `.env.local` before deploying.
 
 ## Deploying
 
-See **[DEPLOYMENT.md](DEPLOYMENT.md)** for a full guide (VPS + PM2 + Nginx/HTTPS, or Docker).
-Key point: this app uses a **SQLite file** (`data/app.db`), so it needs a host with a
-**persistent disk** and a long-running Node process — a VPS or a container host with a
-volume. It will **not** work on Vercel/Netlify (serverless, ephemeral filesystem).
+The app uses **libSQL**: locally it stores data in a file (`data/app.db`); in production
+set `TURSO_DATABASE_URL` + `TURSO_AUTH_TOKEN` to use a **Turso** cloud database.
+
+- **Vercel / serverless** → **[VERCEL_DEPLOY.md](VERCEL_DEPLOY.md)** (uses Turso).
+- **VPS / Docker / Railway / Render** → **[DEPLOYMENT.md](DEPLOYMENT.md)** (file DB or Turso).
+
 Public sign-up is disabled; create accounts with `node scripts/create-user.mjs`.
 
 ## Setting up AdSense for Search (RSoC) — how to earn revenue

@@ -1,33 +1,36 @@
-import { db, type PostLinkRow } from "./db";
+import { all, db, type PostLinkRow } from "./db";
 
 /** Returns { keyword -> url } for a post. */
-export function getLinkMap(postId: number): Record<string, string> {
-  const rows = db
-    .prepare("SELECT keyword, url FROM post_links WHERE post_id = ?")
-    .all(postId) as Pick<PostLinkRow, "keyword" | "url">[];
+export async function getLinkMap(postId: number): Promise<Record<string, string>> {
+  const rows = await all<Pick<PostLinkRow, "keyword" | "url">>(
+    "SELECT keyword, url FROM post_links WHERE post_id = ?",
+    [postId]
+  );
   const map: Record<string, string> = {};
   for (const r of rows) map[r.keyword] = r.url;
   return map;
 }
 
 /**
- * Replaces all keyword links for a post with the supplied list.
- * Entries with an empty url are treated as "remove".
+ * Replaces all keyword links for a post with the supplied list (atomic batch).
+ * Entries with an empty url are skipped (i.e. removed).
  */
-export function setLinks(
+export async function setLinks(
   postId: number,
   links: { keyword: string; url: string }[]
-): void {
-  const tx = db.transaction((items: { keyword: string; url: string }[]) => {
-    db.prepare("DELETE FROM post_links WHERE post_id = ?").run(postId);
-    const insert = db.prepare(
-      "INSERT INTO post_links (post_id, keyword, url) VALUES (?, ?, ?)"
-    );
-    for (const { keyword, url } of items) {
-      const k = (keyword || "").trim();
-      const u = (url || "").trim();
-      if (k && u) insert.run(postId, k, u);
+): Promise<void> {
+  const stmts: { sql: string; args: (string | number)[] }[] = [
+    { sql: "DELETE FROM post_links WHERE post_id = ?", args: [postId] },
+  ];
+  for (const { keyword, url } of links) {
+    const k = (keyword || "").trim();
+    const u = (url || "").trim();
+    if (k && u) {
+      stmts.push({
+        sql: "INSERT INTO post_links (post_id, keyword, url) VALUES (?, ?, ?)",
+        args: [postId, k, u],
+      });
     }
-  });
-  tx(links);
+  }
+  await db.batch(stmts, "write");
 }

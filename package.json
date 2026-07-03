@@ -13,8 +13,8 @@
     "create-user": "node scripts/create-user.mjs"
   },
   "dependencies": {
+    "@libsql/client": "^0.17.4",
     "bcryptjs": "^2.4.3",
-    "better-sqlite3": "^11.8.1",
     "jose": "^5.9.6",
     "next": "^15.5.19",
     "react": "19.0.0",
@@ -22,7 +22,6 @@
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
-    "@types/better-sqlite3": "^7.6.12",
     "@types/node": "^22.10.7",
     "@types/react": "^19.0.7",
     "@types/react-dom": "^19.0.3",

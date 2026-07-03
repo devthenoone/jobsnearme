@@ -11,7 +11,7 @@ type Props = { params: Promise<{ slug: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const post = getBySlug(slug);
+  const post = await getBySlug(slug);
   if (!post) return { title: "Post not found" };
   const description = post.excerpt || post.content.slice(0, 155);
   return {
@@ -25,10 +25,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function BlogPost({ params }: Props) {
   const { slug } = await params;
-  const post = getBySlug(slug);
+  const post = await getBySlug(slug);
   if (!post || !post.published) notFound();
 
-  const settings = getSettings(); // admin-managed AdSense keys + preview toggle
+  const settings = await getSettings(); // admin-managed AdSense keys + preview toggle
 
   // Split the body into two halves so the keyword panel sits in the middle.
   const paragraphs = post.content.split(/\n{2,}/).filter((p) => p.trim());

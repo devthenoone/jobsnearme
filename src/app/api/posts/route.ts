@@ -1,7 +1,18 @@
 import { NextResponse } from "next/server";
-import { db, type PostRow } from "@/lib/db";
+import { one, run, type PostRow } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
-import { uniqueSlug } from "@/lib/slug";
+import { slugify } from "@/lib/slug";
+
+async function uniqueSlug(base: string): Promise<string> {
+  const root = slugify(base) || "post";
+  let candidate = root;
+  let n = 2;
+  // Loop until the slug is free.
+  while (await one("SELECT 1 AS x FROM posts WHERE slug = ?", [candidate])) {
+    candidate = `${root}-${n++}`;
+  }
+  return candidate;
+}
 
 // Create a new post.
 export async function POST(req: Request) {
@@ -13,26 +24,22 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Title is required." }, { status: 400 });
   }
 
-  const slug = uniqueSlug(title, (s) => {
-    return !!db.prepare("SELECT 1 FROM posts WHERE slug = ?").get(s);
-  });
-
-  const info = db
-    .prepare(
-      `INSERT INTO posts (author_id, title, slug, excerpt, content, tags, published)
-       VALUES (?, ?, ?, ?, ?, ?, ?)`
-    )
-    .run(
+  const slug = await uniqueSlug(title);
+  const res = await run(
+    `INSERT INTO posts (author_id, title, slug, excerpt, content, tags, published)
+     VALUES (?, ?, ?, ?, ?, ?, ?)`,
+    [
       user.id,
       title.trim(),
       slug,
       String(excerpt ?? "").trim(),
       String(content ?? "").trim(),
       String(tags ?? "").trim(),
-      published === false ? 0 : 1
-    );
+      published === false ? 0 : 1,
+    ]
+  );
 
-  return NextResponse.json({ ok: true, id: Number(info.lastInsertRowid), slug });
+  return NextResponse.json({ ok: true, id: Number(res.lastInsertRowid), slug });
 }
 
 // Update an existing post (must be the author).
@@ -41,26 +48,25 @@ export async function PUT(req: Request) {
   if (!user) return NextResponse.json({ error: "Not authenticated." }, { status: 401 });
 
   const { id, title, excerpt, content, tags, published } = await req.json().catch(() => ({}));
-  const post = db.prepare("SELECT * FROM posts WHERE id = ?").get(Number(id)) as
-    | PostRow
-    | undefined;
+  const post = await one<PostRow>("SELECT * FROM posts WHERE id = ?", [Number(id)]);
 
   if (!post) return NextResponse.json({ error: "Post not found." }, { status: 404 });
   if (post.author_id !== user.id) {
     return NextResponse.json({ error: "Not your post." }, { status: 403 });
   }
 
-  db.prepare(
+  await run(
     `UPDATE posts
        SET title = ?, excerpt = ?, content = ?, tags = ?, published = ?, updated_at = datetime('now')
-     WHERE id = ?`
-  ).run(
-    String(title ?? post.title).trim(),
-    String(excerpt ?? "").trim(),
-    String(content ?? "").trim(),
-    String(tags ?? "").trim(),
-    published === false ? 0 : 1,
-    post.id
+     WHERE id = ?`,
+    [
+      String(title ?? post.title).trim(),
+      String(excerpt ?? "").trim(),
+      String(content ?? "").trim(),
+      String(tags ?? "").trim(),
+      published === false ? 0 : 1,
+      post.id,
+    ]
   );
 
   return NextResponse.json({ ok: true, slug: post.slug });
@@ -72,14 +78,13 @@ export async function DELETE(req: Request) {
   if (!user) return NextResponse.json({ error: "Not authenticated." }, { status: 401 });
 
   const { id } = await req.json().catch(() => ({}));
-  const post = db.prepare("SELECT * FROM posts WHERE id = ?").get(Number(id)) as
-    | PostRow
-    | undefined;
+  const post = await one<PostRow>("SELECT * FROM posts WHERE id = ?", [Number(id)]);
   if (!post) return NextResponse.json({ error: "Post not found." }, { status: 404 });
   if (post.author_id !== user.id) {
     return NextResponse.json({ error: "Not your post." }, { status: 403 });
   }
 
-  db.prepare("DELETE FROM posts WHERE id = ?").run(post.id);
+  await run("DELETE FROM post_links WHERE post_id = ?", [post.id]);
+  await run("DELETE FROM posts WHERE id = ?", [post.id]);
   return NextResponse.json({ ok: true });
 }

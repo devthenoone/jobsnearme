@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 export async function GET() {
   const user = await getCurrentUser();
   if (!user) return NextResponse.json({ error: "Not authenticated." }, { status: 401 });
-  return NextResponse.json({ settings: getSettings() });
+  return NextResponse.json({ settings: await getSettings() });
 }
 
 export async function PUT(req: Request) {
@@ -18,6 +18,6 @@ export async function PUT(req: Request) {
   if (typeof body !== "object" || body === null) {
     return NextResponse.json({ error: "Invalid body." }, { status: 400 });
   }
-  setSettings(body as Record<string, string>);
-  return NextResponse.json({ ok: true, settings: getSettings() });
+  await setSettings(body as Record<string, string>);
+  return NextResponse.json({ ok: true, settings: await getSettings() });
 }

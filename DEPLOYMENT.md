@@ -12,10 +12,12 @@ app must run as a **long-lived Node server** (not serverless functions).
 |------|--------|-----|
 | **VPS** (DigitalOcean, Hetzner, Linode, AWS EC2, any Ubuntu box) | ✅ Best | Full control, persistent disk |
 | **Railway / Render / Fly.io** (with a persistent volume) | ✅ Good | Easy, but you MUST attach a volume mounted at `/app/data` |
-| **Vercel / Netlify / Cloudflare** | ❌ No | Serverless = read-only, ephemeral filesystem. SQLite writes are lost / fail. |
+| **Vercel / Netlify / Cloudflare** | ✅ with Turso | The app uses libSQL, so on serverless you point it at a **Turso** cloud DB. See **[VERCEL_DEPLOY.md](VERCEL_DEPLOY.md)**. |
 
-> If you ever want Vercel-style hosting, the database has to move to a hosted DB
-> (Postgres/Turso/PlanetScale). That's a bigger change — ask and I'll do it.
+> This guide (VPS/Docker) uses the **local file** database (`./data/app.db`).
+> For **Vercel**, follow **[VERCEL_DEPLOY.md](VERCEL_DEPLOY.md)** instead — it uses Turso.
+> Set `TURSO_DATABASE_URL` + `TURSO_AUTH_TOKEN` to use a cloud DB on any host; leave
+> them blank to use the local file.
 
 ---
 

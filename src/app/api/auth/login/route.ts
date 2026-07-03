@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { db, type UserRow } from "@/lib/db";
+import { one, type UserRow } from "@/lib/db";
 import { verifyPassword, createSession } from "@/lib/auth";
 
 export async function POST(req: Request) {
@@ -10,9 +10,7 @@ export async function POST(req: Request) {
   }
 
   const normEmail = String(email).trim().toLowerCase();
-  const user = db
-    .prepare("SELECT * FROM users WHERE email = ?")
-    .get(normEmail) as UserRow | undefined;
+  const user = await one<UserRow>("SELECT * FROM users WHERE email = ?", [normEmail]);
 
   if (!user || !(await verifyPassword(String(password), user.password))) {
     return NextResponse.json({ error: "Invalid email or password." }, { status: 401 });

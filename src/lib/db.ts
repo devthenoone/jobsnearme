@@ -1,64 +1,101 @@
-import Database from "better-sqlite3";
-import path from "node:path";
+import { createClient, type Client, type InArgs } from "@libsql/client";
 import fs from "node:fs";
+import path from "node:path";
 
-// Single shared SQLite connection, cached across hot-reloads in dev.
-const globalForDb = globalThis as unknown as { __db?: Database.Database };
+// libSQL client. Locally it uses a file DB (file:./data/app.db); in production
+// set TURSO_DATABASE_URL (+ TURSO_AUTH_TOKEN) to a Turso/libSQL server so it
+// works on serverless hosts like Vercel.
+const globalForDb = globalThis as unknown as {
+  __db?: Client;
+  __schema?: Promise<void>;
+};
 
-function createDb(): Database.Database {
-  const dataDir = path.join(process.cwd(), "data");
-  if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
+function createDb(): Client {
+  const url = process.env.TURSO_DATABASE_URL || "file:./data/app.db";
+  const authToken = process.env.TURSO_AUTH_TOKEN;
 
-  const db = new Database(path.join(dataDir, "app.db"));
-  db.pragma("journal_mode = WAL");
+  // For local file mode, make sure the ./data directory exists.
+  if (url.startsWith("file:")) {
+    const dir = path.join(process.cwd(), "data");
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+  }
 
-  db.exec(`
-    CREATE TABLE IF NOT EXISTS users (
-      id         INTEGER PRIMARY KEY AUTOINCREMENT,
-      email      TEXT NOT NULL UNIQUE,
-      name       TEXT NOT NULL,
-      password   TEXT NOT NULL,
-      created_at TEXT NOT NULL DEFAULT (datetime('now'))
-    );
-
-    CREATE TABLE IF NOT EXISTS posts (
-      id         INTEGER PRIMARY KEY AUTOINCREMENT,
-      author_id  INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-      title      TEXT NOT NULL,
-      slug       TEXT NOT NULL UNIQUE,
-      excerpt    TEXT NOT NULL DEFAULT '',
-      content    TEXT NOT NULL DEFAULT '',
-      tags       TEXT NOT NULL DEFAULT '',
-      published  INTEGER NOT NULL DEFAULT 1,
-      created_at TEXT NOT NULL DEFAULT (datetime('now')),
-      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
-    );
-
-    CREATE INDEX IF NOT EXISTS idx_posts_slug ON posts(slug);
-    CREATE INDEX IF NOT EXISTS idx_posts_author ON posts(author_id);
-
-    CREATE TABLE IF NOT EXISTS post_links (
-      id         INTEGER PRIMARY KEY AUTOINCREMENT,
-      post_id    INTEGER NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
-      keyword    TEXT NOT NULL,
-      url        TEXT NOT NULL,
-      created_at TEXT NOT NULL DEFAULT (datetime('now')),
-      UNIQUE(post_id, keyword)
-    );
-    CREATE INDEX IF NOT EXISTS idx_links_post ON post_links(post_id);
-
-    CREATE TABLE IF NOT EXISTS settings (
-      key   TEXT PRIMARY KEY,
-      value TEXT NOT NULL DEFAULT ''
-    );
-  `);
-
-  return db;
+  return createClient(authToken ? { url, authToken } : { url });
 }
 
 export const db = globalForDb.__db ?? createDb();
 if (process.env.NODE_ENV !== "production") globalForDb.__db = db;
 
+// Schema — idempotent. Runs once per process (cached promise) before queries,
+// so a fresh Turso database is set up automatically with no manual migration.
+const SCHEMA_SQL = `
+CREATE TABLE IF NOT EXISTS users (
+  id         INTEGER PRIMARY KEY AUTOINCREMENT,
+  email      TEXT NOT NULL UNIQUE,
+  name       TEXT NOT NULL,
+  password   TEXT NOT NULL,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+CREATE TABLE IF NOT EXISTS posts (
+  id         INTEGER PRIMARY KEY AUTOINCREMENT,
+  author_id  INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  title      TEXT NOT NULL,
+  slug       TEXT NOT NULL UNIQUE,
+  excerpt    TEXT NOT NULL DEFAULT '',
+  content    TEXT NOT NULL DEFAULT '',
+  tags       TEXT NOT NULL DEFAULT '',
+  published  INTEGER NOT NULL DEFAULT 1,
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+CREATE INDEX IF NOT EXISTS idx_posts_slug ON posts(slug);
+CREATE INDEX IF NOT EXISTS idx_posts_author ON posts(author_id);
+CREATE TABLE IF NOT EXISTS post_links (
+  id         INTEGER PRIMARY KEY AUTOINCREMENT,
+  post_id    INTEGER NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
+  keyword    TEXT NOT NULL,
+  url        TEXT NOT NULL,
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  UNIQUE(post_id, keyword)
+);
+CREATE INDEX IF NOT EXISTS idx_links_post ON post_links(post_id);
+CREATE TABLE IF NOT EXISTS settings (
+  key   TEXT PRIMARY KEY,
+  value TEXT NOT NULL DEFAULT ''
+);
+`;
+
+function ensureSchema(): Promise<void> {
+  if (!globalForDb.__schema) {
+    globalForDb.__schema = db.executeMultiple(SCHEMA_SQL).then(() => {});
+  }
+  return globalForDb.__schema;
+}
+
+// Query helpers ------------------------------------------------------------
+export async function all<T = Record<string, unknown>>(
+  sql: string,
+  args: InArgs = []
+): Promise<T[]> {
+  await ensureSchema();
+  const res = await db.execute({ sql, args });
+  return res.rows as unknown as T[];
+}
+
+export async function one<T = Record<string, unknown>>(
+  sql: string,
+  args: InArgs = []
+): Promise<T | undefined> {
+  const rows = await all<T>(sql, args);
+  return rows[0];
+}
+
+export async function run(sql: string, args: InArgs = []) {
+  await ensureSchema();
+  return db.execute({ sql, args });
+}
+
+// Types --------------------------------------------------------------------
 export type UserRow = {
   id: number;
   email: string;
