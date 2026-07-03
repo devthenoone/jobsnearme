@@ -14,10 +14,23 @@ function createDb(): Client {
   const url = process.env.TURSO_DATABASE_URL || "file:./data/app.db";
   const authToken = process.env.TURSO_AUTH_TOKEN;
 
+  // On a serverless/read-only host (e.g. Vercel) a file DB cannot work — make the
+  // misconfiguration explicit instead of failing with a confusing filesystem error.
+  if (url.startsWith("file:") && process.env.VERCEL) {
+    throw new Error(
+      "TURSO_DATABASE_URL (and TURSO_AUTH_TOKEN) must be set as Environment Variables " +
+        "in Vercel — a file database cannot run on serverless. See VERCEL_DEPLOY.md."
+    );
+  }
+
   // For local file mode, make sure the ./data directory exists.
   if (url.startsWith("file:")) {
-    const dir = path.join(process.cwd(), "data");
-    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    try {
+      const dir = path.join(process.cwd(), "data");
+      if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    } catch {
+      /* read-only fs — ignore; libSQL will surface a clearer error */
+    }
   }
 
   return createClient(authToken ? { url, authToken } : { url });
