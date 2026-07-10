@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { Keyword } from "@/lib/keywords";
+import { cseUrl } from "@/lib/cse";
+import { openInNewTab } from "@/lib/openTab";
 
 type ApiResponse = {
   keywords: Keyword[];
@@ -84,11 +86,11 @@ export default function KeywordPanel({
     ? Array.from({ length: Math.min(DISPLAY, pool.length) }, (_, i) => pool[(offset + i) % pool.length])
     : [];
 
-  // Click a keyword: open the admin's custom link if set, else search Google directly.
+  // Click a keyword: open the admin's custom link if set, otherwise open a Google
+  // search for the exact term in a new tab.
   function openKeyword(term: string) {
-    const url =
-      links[term] || `https://www.google.com/search?q=${encodeURIComponent(term)}`;
-    window.open(url, "_blank", "noopener");
+    const url = links[term] || cseUrl(term);
+    openInNewTab(url);
   }
 
   return (

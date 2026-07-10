@@ -3,6 +3,7 @@
 /out
 /build
 *.log
+.env
 .env*.local
 /data/*.db
 /data/*.db-*
