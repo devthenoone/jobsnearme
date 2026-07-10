@@ -1,0 +1,90 @@
+
+> google-blogging@0.1.0 dev
+> next dev
+
+ ⚠ Port 3000 is in use by process 23336, using available port 3001 instead.
+   ▲ Next.js 15.5.19
+   - Local:        http://localhost:3001
+   - Network:      http://172.24.112.1:3001
+   - Environments: .env.local, .env
+
+ ✓ Starting...
+ ✓ Ready in 3.4s
+ ○ Compiling / ...
+ ✓ Compiled / in 8s (624 modules)
+ GET / 200 in 10223ms
+ ○ Compiling /search ...
+ ✓ Compiled /search in 1786ms (634 modules)
+ GET /search?q=nurse%20jobs 200 in 2546ms
+ ✓ Compiled /blogs in 355ms (622 modules)
+ GET /blogs 200 in 942ms
+ ✓ Compiled /about in 370ms (624 modules)
+ GET /about 200 in 678ms
+ ○ Compiling /blog/[slug] ...
+ ✓ Compiled /blog/[slug] in 511ms (645 modules)
+ GET /blog/remote-jobs-near-me-work-from-home 200 in 2774ms
+ GET / 200 in 299ms
+ GET /search?q=nurse 200 in 112ms
+ GET / 200 in 504ms
+ GET /search?q=jobs%20near%20me 200 in 160ms
+ ✓ Compiled in 472ms (249 modules)
+ GET /search?q=jobs+near+me 200 in 149ms
+ ✓ Compiled in 839ms (618 modules)
+ GET /search?q=jobs+near+me 200 in 382ms
+ ✓ Compiled in 400ms (250 modules)
+ GET /search?q=jobs+near+me 200 in 97ms
+ ✓ Compiled in 290ms (250 modules)
+ GET /search?q=jobs+near+me 200 in 89ms
+ ✓ Compiled in 248ms (250 modules)
+ ⨯ SyntaxError: Unexpected end of JSON input
+    at JSON.parse (<anonymous>) {
+  page: '/search'
+}
+ ✓ Compiled in 446ms (250 modules)
+ ○ Compiling /_error ...
+ ✓ Compiled /_error in 3.6s (952 modules)
+ GET /search?q=jobs+near+me 500 in 5238ms
+ GET /search?q=jobs+near+me 200 in 294ms
+ GET /search?q=jobs+near+me 200 in 78ms
+ GET /search?q=jobs+near+me 200 in 94ms
+ GET /search?q=jobs+near+me 200 in 472ms
+ ✓ Compiled / in 481ms (584 modules)
+ GET / 200 in 1488ms
+ GET /search?q=jobs+near+me 200 in 122ms
+ GET / 200 in 513ms
+ GET /search?q=Warehouse%20Jobs%20near%20me 200 in 148ms
+ ✓ Compiled in 1356ms (891 modules)
+ GET /search?q=Warehouse+Jobs+near+me 200 in 1019ms
+ GET / 200 in 1098ms
+ GET /search?q=warehouse%20jobs 200 in 229ms
+ GET /search?q=warehouse%20jobs 200 in 91ms
+ GET / 200 in 946ms
+ GET /search?q=Nurse%20Jobs%20near%20me 200 in 171ms
+ GET / 200 in 288ms
+ GET / 200 in 693ms
+ GET /search?q=Warehouse%20Jobs%20near%20me 200 in 313ms
+ GET / 200 in 930ms
+ GET /search?q=jobs%20near%20me 200 in 148ms
+ GET / 200 in 403ms
+ GET /search?q=Government%20Jobs%20near%20me 200 in 254ms
+ GET /search?q=Warehouse%20Jobs%20near%20me 200 in 108ms
+ ✓ Compiled in 1459ms (891 modules)
+ GET /search?q=Warehouse+Jobs+near+me 200 in 518ms
+ GET /search?q=Government+Jobs+near+me 200 in 520ms
+ GET /search?q=Warehouse+Jobs+near+me 200 in 485ms
+ GET / 200 in 1337ms
+ GET / 200 in 1341ms
+ GET / 200 in 824ms
+ GET / 200 in 828ms
+ GET / 200 in 329ms
+ GET /search?q=jobs 200 in 364ms
+ ✓ Compiled in 1203ms (891 modules)
+ GET /search?q=Warehouse+Jobs+near+me 200 in 519ms
+ GET / 200 in 550ms
+ GET /search?q=nurse%20jobs 200 in 679ms
+ GET /search?q=nurse 200 in 230ms
+ GET /search?q=Remote%20Jobs%20near%20me 200 in 633ms
+ GET /search?q=how%20to%20run%20ads 200 in 476ms
+ GET /search?q=Part%20Time%20Jobs%20near%20me 200 in 692ms
+ GET /search?q=Driver%20Jobs%20near%20me 200 in 429ms
+[?25h
