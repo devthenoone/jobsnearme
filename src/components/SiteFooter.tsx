@@ -13,7 +13,6 @@ const quickLinks = [
 const employers = [
   { label: "Post a Job", href: "/contact" },
   { label: "Browse Resumes", href: "#" },
-  { label: "Employer Login", href: "/login" },
   { label: "Pricing", href: "#" },
   { label: "Resources", href: "/blogs" },
 ];

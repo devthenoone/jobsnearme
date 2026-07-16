@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { listPublished } from "@/lib/posts";
 import { cseUrl } from "@/lib/cse";
-import GoogleJobSearch from "@/components/GoogleJobSearch";
 
 export const dynamic = "force-dynamic";
 
@@ -54,16 +53,47 @@ export default async function Home() {
   return (
     <div className="bg-gray-50">
       {/* Hero */}
-      <section className="bg-gradient-to-b from-blue-50 to-white px-4 py-14">
-        <div className="mx-auto max-w-3xl text-center">
-          <h1 className="text-4xl font-extrabold text-gray-900 sm:text-5xl">
+      <section className="bg-gradient-to-b from-blue-50 to-white px-4 py-16">
+        <div className="mx-auto max-w-4xl text-center">
+          <span className="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 text-xs font-semibold text-blue-700 ring-1 ring-blue-100">
+            🔥 New roles added every day
+          </span>
+          <h1 className="mt-4 text-4xl font-extrabold text-gray-900 sm:text-5xl">
             Find Jobs Near You
           </h1>
-          <p className="mt-3 text-gray-600">
-            Search thousands of jobs from top employers in your area.
+          <p className="mx-auto mt-3 max-w-2xl text-gray-600">
+            Browse local, part-time, warehouse and remote roles — plus expert guides to
+            help you apply and get hired faster.
           </p>
-          <div className="mt-6">
-            <GoogleJobSearch variant="hero" />
+
+          <div className="mt-7 flex flex-wrap justify-center gap-3">
+            <Link
+              href="/blogs"
+              className="rounded-lg bg-blue-600 px-6 py-3 text-sm font-semibold text-white hover:bg-blue-700"
+            >
+              Browse Career Guides
+            </Link>
+            <a
+              href={cseUrl("jobs near me")}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded-lg border border-gray-300 bg-white px-6 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-50"
+            >
+              Explore Jobs →
+            </a>
+          </div>
+
+          <div className="mx-auto mt-10 grid max-w-2xl grid-cols-3 gap-4">
+            {[
+              { n: "16,739+", l: "Jobs available" },
+              { n: `${categories.length}`, l: "Job categories" },
+              { n: `${posts.length}`, l: "Career guides" },
+            ].map((s) => (
+              <div key={s.l} className="rounded-xl bg-white/70 px-3 py-4 ring-1 ring-blue-100">
+                <div className="text-2xl font-extrabold text-blue-700">{s.n}</div>
+                <div className="mt-0.5 text-xs text-gray-500">{s.l}</div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -184,9 +214,21 @@ export default async function Home() {
 
         {/* Sidebar */}
         <aside className="space-y-6">
-          <div className="rounded-2xl border bg-white p-5">
-            <h3 className="mb-3 font-bold text-gray-900">Search Jobs</h3>
-            <GoogleJobSearch variant="sidebar" />
+          <div className="rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600 p-5 text-white">
+            <h3 className="text-base font-bold">Get job alerts</h3>
+            <p className="mt-1 text-xs text-white/80">
+              New openings and career tips, straight to your inbox.
+            </p>
+            <form action="#" className="mt-3 space-y-2">
+              <input
+                type="email"
+                placeholder="Enter your email"
+                className="w-full rounded-lg px-3 py-2 text-sm text-gray-800 outline-none"
+              />
+              <button className="w-full rounded-lg bg-white px-4 py-2 text-sm font-semibold text-blue-700 hover:bg-gray-100">
+                Subscribe
+              </button>
+            </form>
           </div>
 
           <SidebarList

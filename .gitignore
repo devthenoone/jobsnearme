@@ -9,3 +9,6 @@
 /data/*.db-*
 next-env.d.ts
 .DS_Store
+
+devlog.txt
+prodlog.txt

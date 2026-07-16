@@ -87,3 +87,4 @@
  GET /search?q=how%20to%20run%20ads 200 in 476ms
  GET /search?q=Part%20Time%20Jobs%20near%20me 200 in 692ms
  GET /search?q=Driver%20Jobs%20near%20me 200 in 429ms
+[?25h
