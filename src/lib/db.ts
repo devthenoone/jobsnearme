@@ -57,6 +57,7 @@ CREATE TABLE IF NOT EXISTS posts (
   excerpt    TEXT NOT NULL DEFAULT '',
   content    TEXT NOT NULL DEFAULT '',
   tags       TEXT NOT NULL DEFAULT '',
+  category   TEXT NOT NULL DEFAULT '',
   published  INTEGER NOT NULL DEFAULT 1,
   created_at TEXT NOT NULL DEFAULT (datetime('now')),
   updated_at TEXT NOT NULL DEFAULT (datetime('now'))
@@ -78,10 +79,19 @@ CREATE TABLE IF NOT EXISTS settings (
 );
 `;
 
-function ensureSchema(): Promise<void> {
-  if (!globalForDb.__schema) {
-    globalForDb.__schema = db.executeMultiple(SCHEMA_SQL).then(() => {});
+async function migrate(): Promise<void> {
+  await db.executeMultiple(SCHEMA_SQL);
+  // Columns added after the first release — ALTER throws if it already exists,
+  // which is the "already migrated" case, so it's safe to ignore.
+  try {
+    await db.execute("ALTER TABLE posts ADD COLUMN category TEXT NOT NULL DEFAULT ''");
+  } catch {
+    /* column already present */
   }
+}
+
+function ensureSchema(): Promise<void> {
+  if (!globalForDb.__schema) globalForDb.__schema = migrate();
   return globalForDb.__schema;
 }
 
@@ -125,6 +135,7 @@ export type PostRow = {
   excerpt: string;
   content: string;
   tags: string;
+  category: string;
   published: number;
   created_at: string;
   updated_at: string;

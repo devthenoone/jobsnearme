@@ -29,6 +29,7 @@ const posts = [
     excerpt:
       "A practical guide to finding jobs near me — where to search, how to apply, and tips to get hired quickly for local roles in your area.",
     tags: "jobs near me, hiring near me, local jobs near me, full time jobs near me",
+    category: "office-jobs",
     content: `Searching for "jobs near me" is one of the fastest ways to find work in your own city or neighbourhood. Local employers want people who can start soon and travel a short distance, which means your application often moves to the top of the pile.
 
 Start with the big job boards and set your location filter to your postcode or city. Turn on alerts so new roles near you land in your inbox the moment they are posted.
@@ -48,6 +49,7 @@ Apply the same day a job is posted, keep your phone on for interview calls, and 
     excerpt:
       "The best part-time jobs near me for students and beginners — flexible hours, no experience needed, and how to apply this week.",
     tags: "part time jobs near me, student jobs near me, weekend jobs near me, evening jobs near me",
+    category: "restaurant",
     content: `Part-time jobs near me are perfect if you are a student, returning to work, or just want extra income around your schedule. They offer flexible hours and are often open to people with little or no experience.
 
 Popular part-time roles
@@ -68,6 +70,7 @@ Walk in with a printed CV during quiet hours, apply online the same day roles ap
     excerpt:
       "Warehouse jobs near me with immediate start — packing, picking, and delivery roles that hire fast, often with no experience required.",
     tags: "warehouse jobs near me, delivery jobs near me, packing jobs near me, no experience jobs near me",
+    category: "driving",
     content: `Warehouse jobs near me are among the fastest-hiring roles you can find, especially during busy seasons. Many offer immediate starts, flexible shifts, and pay weekly.
 
 Common warehouse roles
@@ -88,6 +91,7 @@ Register with local recruitment agencies, apply directly on logistics company we
     excerpt:
       "Remote jobs near me and work-from-home roles you can start now — legit options, required skills, and how to avoid scams.",
     tags: "remote jobs near me, work from home jobs near me, online jobs near me, freelance jobs near me",
+    category: "technology",
     content: `Remote jobs near me let you work from home while still being hired by companies in your region. They combine the flexibility of working online with the trust of a local employer.
 
 Popular remote roles
@@ -106,9 +110,9 @@ Set up a simple, tidy CV, apply to several roles the same day, and prepare for a
 
 for (const p of posts) {
   await db.execute({
-    sql: `INSERT INTO posts (author_id, title, slug, excerpt, content, tags, published)
-          VALUES (?, ?, ?, ?, ?, ?, 1)`,
-    args: [authorId, p.title, p.slug, p.excerpt, p.content, p.tags],
+    sql: `INSERT INTO posts (author_id, title, slug, excerpt, content, tags, category, published)
+          VALUES (?, ?, ?, ?, ?, ?, ?, 1)`,
+    args: [authorId, p.title, p.slug, p.excerpt, p.content, p.tags, p.category],
   });
   console.log("Inserted:", p.slug);
 }

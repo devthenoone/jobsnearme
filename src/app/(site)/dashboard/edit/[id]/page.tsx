@@ -26,6 +26,7 @@ export default async function EditPost({
         excerpt: post.excerpt,
         content: post.content,
         tags: post.tags,
+        category: post.category,
         published: !!post.published,
       }}
     />

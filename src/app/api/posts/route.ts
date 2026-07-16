@@ -19,15 +19,17 @@ export async function POST(req: Request) {
   const user = await getCurrentUser();
   if (!user) return NextResponse.json({ error: "Not authenticated." }, { status: 401 });
 
-  const { title, excerpt, content, tags, published } = await req.json().catch(() => ({}));
+  const { title, excerpt, content, tags, category, published } = await req
+    .json()
+    .catch(() => ({}));
   if (!title || typeof title !== "string") {
     return NextResponse.json({ error: "Title is required." }, { status: 400 });
   }
 
   const slug = await uniqueSlug(title);
   const res = await run(
-    `INSERT INTO posts (author_id, title, slug, excerpt, content, tags, published)
-     VALUES (?, ?, ?, ?, ?, ?, ?)`,
+    `INSERT INTO posts (author_id, title, slug, excerpt, content, tags, category, published)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
     [
       user.id,
       title.trim(),
@@ -35,6 +37,7 @@ export async function POST(req: Request) {
       String(excerpt ?? "").trim(),
       String(content ?? "").trim(),
       String(tags ?? "").trim(),
+      String(category ?? "").trim(),
       published === false ? 0 : 1,
     ]
   );
@@ -47,7 +50,9 @@ export async function PUT(req: Request) {
   const user = await getCurrentUser();
   if (!user) return NextResponse.json({ error: "Not authenticated." }, { status: 401 });
 
-  const { id, title, excerpt, content, tags, published } = await req.json().catch(() => ({}));
+  const { id, title, excerpt, content, tags, category, published } = await req
+    .json()
+    .catch(() => ({}));
   const post = await one<PostRow>("SELECT * FROM posts WHERE id = ?", [Number(id)]);
 
   if (!post) return NextResponse.json({ error: "Post not found." }, { status: 404 });
@@ -57,13 +62,14 @@ export async function PUT(req: Request) {
 
   await run(
     `UPDATE posts
-       SET title = ?, excerpt = ?, content = ?, tags = ?, published = ?, updated_at = datetime('now')
+       SET title = ?, excerpt = ?, content = ?, tags = ?, category = ?, published = ?, updated_at = datetime('now')
      WHERE id = ?`,
     [
       String(title ?? post.title).trim(),
       String(excerpt ?? "").trim(),
       String(content ?? "").trim(),
       String(tags ?? "").trim(),
+      String(category ?? "").trim(),
       published === false ? 0 : 1,
       post.id,
     ]

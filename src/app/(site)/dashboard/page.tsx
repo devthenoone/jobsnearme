@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
 import { listByAuthor } from "@/lib/posts";
 import { one } from "@/lib/db";
+import { categoryBySlug } from "@/lib/categories";
 import DeletePostButton from "@/components/DeletePostButton";
 
 export const dynamic = "force-dynamic";
@@ -67,6 +68,7 @@ export default async function Dashboard() {
             <thead>
               <tr className="border-b text-left text-[11px] uppercase tracking-wide text-gray-400">
                 <th className="px-5 py-2 font-semibold">Title</th>
+                <th className="px-5 py-2 font-semibold">Category</th>
                 <th className="px-5 py-2 font-semibold">Status</th>
                 <th className="px-5 py-2 font-semibold">Updated</th>
                 <th className="px-5 py-2 text-right font-semibold">Actions</th>
@@ -82,6 +84,16 @@ export default async function Dashboard() {
                     >
                       {p.title}
                     </Link>
+                  </td>
+                  <td className="px-5 py-3">
+                    {categoryBySlug(p.category) ? (
+                      <span className="rounded-full bg-blue-50 px-2 py-0.5 text-[11px] font-medium text-blue-700">
+                        {categoryBySlug(p.category)!.icon}{" "}
+                        {categoryBySlug(p.category)!.name}
+                      </span>
+                    ) : (
+                      <span className="text-xs text-gray-400">—</span>
+                    )}
                   </td>
                   <td className="px-5 py-3">
                     {p.published ? (

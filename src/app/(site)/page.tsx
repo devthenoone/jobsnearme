@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { listPublished } from "@/lib/posts";
 import { cseUrl } from "@/lib/cse";
+import { CATEGORIES } from "@/lib/categories";
+import GoogleJobSearch from "@/components/GoogleJobSearch";
 
 export const dynamic = "force-dynamic";
 
@@ -12,17 +14,6 @@ const trending = [
   "Part Time Jobs",
   "Customer Service",
   "Government Jobs",
-];
-
-const categories = [
-  { name: "Technology", icon: "💻", count: "2,458", color: "bg-blue-50" },
-  { name: "Healthcare", icon: "❤️", count: "1,870", color: "bg-red-50" },
-  { name: "Driving", icon: "🚚", count: "2,135", color: "bg-green-50" },
-  { name: "Construction", icon: "👷", count: "1,246", color: "bg-orange-50" },
-  { name: "Office Jobs", icon: "💼", count: "3,245", color: "bg-purple-50" },
-  { name: "Education", icon: "🎓", count: "1,786", color: "bg-indigo-50" },
-  { name: "Restaurant", icon: "🍴", count: "2,012", color: "bg-yellow-50" },
-  { name: "Retail", icon: "🛍️", count: "1,987", color: "bg-pink-50" },
 ];
 
 const sidebarTrending = [
@@ -53,47 +44,16 @@ export default async function Home() {
   return (
     <div className="bg-gray-50">
       {/* Hero */}
-      <section className="bg-gradient-to-b from-blue-50 to-white px-4 py-16">
-        <div className="mx-auto max-w-4xl text-center">
-          <span className="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 text-xs font-semibold text-blue-700 ring-1 ring-blue-100">
-            🔥 New roles added every day
-          </span>
-          <h1 className="mt-4 text-4xl font-extrabold text-gray-900 sm:text-5xl">
+      <section className="bg-gradient-to-b from-blue-50 to-white px-4 py-14">
+        <div className="mx-auto max-w-3xl text-center">
+          <h1 className="text-4xl font-extrabold text-gray-900 sm:text-5xl">
             Find Jobs Near You
           </h1>
-          <p className="mx-auto mt-3 max-w-2xl text-gray-600">
-            Browse local, part-time, warehouse and remote roles — plus expert guides to
-            help you apply and get hired faster.
+          <p className="mt-3 text-gray-600">
+            Search thousands of jobs from top employers in your area.
           </p>
-
-          <div className="mt-7 flex flex-wrap justify-center gap-3">
-            <Link
-              href="/blogs"
-              className="rounded-lg bg-blue-600 px-6 py-3 text-sm font-semibold text-white hover:bg-blue-700"
-            >
-              Browse Career Guides
-            </Link>
-            <a
-              href={cseUrl("jobs near me")}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="rounded-lg border border-gray-300 bg-white px-6 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-50"
-            >
-              Explore Jobs →
-            </a>
-          </div>
-
-          <div className="mx-auto mt-10 grid max-w-2xl grid-cols-3 gap-4">
-            {[
-              { n: "16,739+", l: "Jobs available" },
-              { n: `${categories.length}`, l: "Job categories" },
-              { n: `${posts.length}`, l: "Career guides" },
-            ].map((s) => (
-              <div key={s.l} className="rounded-xl bg-white/70 px-3 py-4 ring-1 ring-blue-100">
-                <div className="text-2xl font-extrabold text-blue-700">{s.n}</div>
-                <div className="mt-0.5 text-xs text-gray-500">{s.l}</div>
-              </div>
-            ))}
+          <div className="mt-6">
+            <GoogleJobSearch variant="hero" />
           </div>
         </div>
       </section>
@@ -123,35 +83,36 @@ export default async function Home() {
           <section>
             <h2 className="mb-4 text-xl font-bold text-gray-900">Popular Job Categories</h2>
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-              {categories.map((c) => (
-                <a
-                  key={c.name}
-                  href={cseUrl(`${c.name} jobs near me`)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group rounded-xl border bg-white p-5 text-center transition hover:-translate-y-0.5 hover:border-blue-300 hover:shadow-md"
-                >
-                  <div
-                    className={`mx-auto mb-3 grid h-12 w-12 place-items-center rounded-xl ${c.color} text-2xl`}
+              {CATEGORIES.map((c) => {
+                const count = posts.filter((p) => p.category === c.slug).length;
+                return (
+                  <Link
+                    key={c.slug}
+                    href={`/blogs?category=${c.slug}`}
+                    className="group rounded-xl border bg-white p-5 text-center transition hover:-translate-y-0.5 hover:border-blue-300 hover:shadow-md"
                   >
-                    {c.icon}
-                  </div>
-                  <div className="font-semibold text-gray-900 group-hover:text-blue-700">
-                    {c.name}
-                  </div>
-                  <div className="mt-0.5 text-xs text-gray-500">{c.count} Jobs</div>
-                </a>
-              ))}
+                    <div
+                      className={`mx-auto mb-3 grid h-12 w-12 place-items-center rounded-xl ${c.color} text-2xl`}
+                    >
+                      {c.icon}
+                    </div>
+                    <div className="font-semibold text-gray-900 group-hover:text-blue-700">
+                      {c.name}
+                    </div>
+                    <div className="mt-0.5 text-xs text-gray-500">
+                      {count} {count === 1 ? "Article" : "Articles"}
+                    </div>
+                  </Link>
+                );
+              })}
             </div>
             <div className="mt-6 text-center">
-              <a
-                href={cseUrl("jobs near me")}
-                target="_blank"
-                rel="noopener noreferrer"
+              <Link
+                href="/blogs"
                 className="inline-block rounded-lg border border-gray-300 px-5 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
               >
                 Browse All Categories
-              </a>
+              </Link>
             </div>
           </section>
 

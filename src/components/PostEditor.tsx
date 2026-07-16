@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import KeywordPanel from "./KeywordPanel";
 import KeywordLinkManager from "./KeywordLinkManager";
+import { CATEGORIES } from "@/lib/categories";
 
 type Initial = {
   id?: number;
@@ -11,6 +12,7 @@ type Initial = {
   excerpt?: string;
   content?: string;
   tags?: string;
+  category?: string;
   published?: boolean;
 };
 
@@ -22,6 +24,7 @@ export default function PostEditor({ initial }: { initial?: Initial }) {
   const [excerpt, setExcerpt] = useState(initial?.excerpt ?? "");
   const [content, setContent] = useState(initial?.content ?? "");
   const [tags, setTags] = useState(initial?.tags ?? "");
+  const [category, setCategory] = useState(initial?.category ?? "");
   const [published, setPublished] = useState(initial?.published ?? true);
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
@@ -36,7 +39,15 @@ export default function PostEditor({ initial }: { initial?: Initial }) {
     const res = await fetch("/api/posts", {
       method: editing ? "PUT" : "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id: initial?.id, title, excerpt, content, tags, published }),
+      body: JSON.stringify({
+        id: initial?.id,
+        title,
+        excerpt,
+        content,
+        tags,
+        category,
+        published,
+      }),
     });
     const json = await res.json().catch(() => ({}));
     setSaving(false);
@@ -63,6 +74,26 @@ export default function PostEditor({ initial }: { initial?: Initial }) {
             placeholder="Post title"
             className="w-full rounded-lg border px-4 py-3 text-xl font-semibold outline-none focus:border-brand focus:ring-1 focus:ring-brand"
           />
+
+          <label className="block">
+            <span className="mb-1 block text-sm font-medium text-gray-700">Category</span>
+            <select
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              className="w-full rounded-lg border bg-white px-4 py-2 text-sm outline-none focus:border-brand focus:ring-1 focus:ring-brand"
+            >
+              <option value="">— No category —</option>
+              {CATEGORIES.map((c) => (
+                <option key={c.slug} value={c.slug}>
+                  {c.icon} {c.name}
+                </option>
+              ))}
+            </select>
+            <span className="mt-1 block text-xs text-gray-500">
+              Shown on the homepage grid; visitors clicking that category see this post.
+            </span>
+          </label>
+
           <input
             value={tags}
             onChange={(e) => setTags(e.target.value)}
