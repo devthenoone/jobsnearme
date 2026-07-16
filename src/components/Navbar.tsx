@@ -45,16 +45,14 @@ export default function Navbar() {
           </Link>
         </div>
 
-        <Link
-          href="/login"
-          className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+        <a
+          href={cseUrl("jobs near me")}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
         >
-          <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4">
-            <circle cx="12" cy="8" r="4" stroke="currentColor" strokeWidth="2" />
-            <path d="M4 20c0-3.3 3.6-6 8-6s8 2.7 8 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-          </svg>
-          Login
-        </Link>
+          Find Jobs
+        </a>
       </nav>
     </header>
   );
